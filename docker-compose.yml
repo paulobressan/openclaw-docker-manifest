@@ -1,0 +1,76 @@
+services:
+  openclaw-gateway:
+    image: ghcr.io/phioranex/openclaw-docker@sha256:c86456ffca67bdcf17e323aad019ed784bed11ef6f1e014aeb81ac73dbd56456
+    container_name: onishell-openclaw-gateway
+    volumes:
+      - ./data/openclaw/config:/home/node/.openclaw
+      - ./data/openclaw/workspace:/home/node/.openclaw/workspace
+    environment:
+      HOME: /home/node
+      NODE_ENV: production
+      TERM: xterm-256color
+      OPENCLAW_GATEWAY_BIND: lan
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+    networks:
+      - backend
+    restart: unless-stopped
+    init: true
+    command:
+      - node
+      - dist/index.js
+      - gateway
+      - --bind
+      - lan
+      - --port
+      - "18789"
+      - --allow-unconfigured
+
+  openclaw-cli:
+    image: ghcr.io/phioranex/openclaw-docker@sha256:c86456ffca67bdcf17e323aad019ed784bed11ef6f1e014aeb81ac73dbd56456
+    container_name: onishell-openclaw-cli
+    volumes:
+      - ./data/openclaw/config:/home/node/.openclaw
+      - ./data/openclaw/workspace:/home/node/.openclaw/workspace
+    environment:
+      HOME: /home/node
+      TERM: xterm-256color
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      BROWSER: echo
+    networks:
+      - backend
+    restart: "no"
+    init: true
+    stdin_open: true
+    tty: true
+    entrypoint: ["node", "dist/index.js"]
+    profiles:
+      - cli
+
+  nginx:
+    image: nginx:1.28.2-alpine
+    container_name: onishell-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/templates:/etc/nginx/templates:ro
+      - ./data/certbot/conf:/etc/letsencrypt:ro
+      - ./data/certbot/www:/var/www/certbot:ro
+    networks:
+      - frontend
+      - backend
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: onishell-certbot
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt:rw
+      - ./data/certbot/www:/var/www/certbot:rw
+
+networks:
+  frontend:
+  backend:
+    internal: true

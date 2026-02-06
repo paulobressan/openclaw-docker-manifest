@@ -17,8 +17,6 @@ services:
     restart: unless-stopped
     init: true
     command:
-      - node
-      - dist/index.js
       - gateway
       - --bind
       - lan

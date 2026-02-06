@@ -18,6 +18,26 @@ server {
     }
 
     location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name _;
+    server_tokens off;
+
+    ssl_certificate     /etc/letsencrypt/live/claw.virtuoni.com.br/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/claw.virtuoni.com.br/privkey.pem;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+    ssl_session_timeout 1d;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_tickets off;
+
+    location / {
         proxy_pass http://openclaw_gateway;
 
         proxy_set_header Host              $host;

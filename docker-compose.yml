@@ -57,8 +57,9 @@ services:
       - ./data/certbot/conf:/etc/letsencrypt:ro
       - ./data/certbot/www:/var/www/certbot:ro
     environment:
-      HTPASSWD: ${HTPASSWD}
-    entrypoint: sh -c 'printf "%s\n" "$$HTPASSWD" > /etc/nginx/.htpasswd && /docker-entrypoint.sh nginx -g "daemon off;"'
+      BASIC_AUTH_USER: ${BASIC_AUTH_USER}
+      BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD}
+    entrypoint: sh -c 'printf "%s:%s\n" "$$BASIC_AUTH_USER" "$$(openssl passwd -apr1 $$BASIC_AUTH_PASSWORD)" > /etc/nginx/.htpasswd && /docker-entrypoint.sh nginx -g "daemon off;"'
     networks:
       - frontend
       - backend

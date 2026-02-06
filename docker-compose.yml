@@ -53,13 +53,14 @@ services:
       - "80:80"
       - "443:443"
     volumes:
+      - ./nginx/entrypoint.sh:/etc/nginx/entrypoint.sh:ro
       - ./nginx/templates:/etc/nginx/templates:ro
       - ./data/certbot/conf:/etc/letsencrypt:ro
       - ./data/certbot/www:/var/www/certbot:ro
     environment:
       BASIC_AUTH_USER: ${BASIC_AUTH_USER}
       BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD}
-    entrypoint: sh -c 'printf "%s:%s\n" "$$BASIC_AUTH_USER" "$$(openssl passwd -apr1 $$BASIC_AUTH_PASSWORD)" > /etc/nginx/.htpasswd && /docker-entrypoint.sh nginx -g "daemon off;"'
+    entrypoint: /etc/nginx/entrypoint.sh
     networks:
       - frontend
       - backend

@@ -56,6 +56,9 @@ services:
       - ./nginx/templates:/etc/nginx/templates:ro
       - ./data/certbot/conf:/etc/letsencrypt:ro
       - ./data/certbot/www:/var/www/certbot:ro
+    environment:
+      HTPASSWD: ${HTPASSWD}
+    command: sh -c 'printf "%s\n" "$$HTPASSWD" > /etc/nginx/.htpasswd && nginx -g "daemon off;"'
     networks:
       - frontend
       - backend

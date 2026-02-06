@@ -38,6 +38,9 @@ server {
     ssl_session_tickets off;
 
     location / {
+        auth_basic           "Restricted";
+        auth_basic_user_file /etc/nginx/.htpasswd;
+
         proxy_pass http://openclaw_gateway;
 
         proxy_set_header Host              $host;

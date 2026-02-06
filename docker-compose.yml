@@ -42,6 +42,7 @@ services:
     init: true
     stdin_open: true
     tty: true
+    working_dir: /app
     entrypoint: ["node", "dist/index.js"]
     profiles:
       - cli

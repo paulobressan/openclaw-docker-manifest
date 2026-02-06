@@ -16,6 +16,8 @@ services:
       - backend
     restart: unless-stopped
     init: true
+    ports:
+      - "18789:18789"
     command:
       - gateway
       - --bind
